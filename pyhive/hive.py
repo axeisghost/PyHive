@@ -251,7 +251,11 @@ class Cursor(common.DBAPICursor):
         _logger.info('%s', sql)
 
         req = ttypes.TExecuteStatementReq(self._connection.sessionHandle,
-                                          sql.encode('utf-8'), runAsync=async)
+                                          sql.encode('utf-8'), runAsync=True)
+        status = self.poll().operationState
+        while status in (ttypes.TOperationState.INITIALIZED_STATE, ttypes.TOperationState.RUNNING_STATE):
+            status = self.poll().operationState
+            _looger.debug("The state of the query now is %d", status)
         _logger.debug(req)
         response = self._connection.client.ExecuteStatement(req)
         _check_status(response)
