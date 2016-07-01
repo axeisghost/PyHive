@@ -75,6 +75,7 @@ class Connection(object):
         socket = thrift.transport.TSocket.TSocket(host, port)
         username = username or getpass.getuser()
         configuration = configuration or {}
+        self.database = database
 
         if auth == 'NOSASL':
             # NOSASL corresponds to hive.server2.authentication=NOSASL in hive-site.xml
@@ -131,7 +132,9 @@ class Connection(object):
 
     def cursor(self, *args, **kwargs):
         """Return a new :py:class:`Cursor` object using the connection."""
-        return Cursor(self, *args, **kwargs)
+        cursor = Cursor(self, *args, **kwargs)
+        cursor.execute('USE `{}`'.format(self.database))
+        return cursor
 
     @property
     def client(self):
