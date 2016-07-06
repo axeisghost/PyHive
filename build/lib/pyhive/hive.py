@@ -66,7 +66,7 @@ def connect(*args, **kwargs):
 class Connection(object):
     """Wraps a Thrift session"""
 
-    def __init__(self, host, kerberos_service_name, port=10000, username=None, password=None, database='default', auth='NONE',
+    def __init__(self, host, kerberos_service_name=None, port=10000, username=None, password=None, database='default', auth='NONE',
                  configuration=None):
         """Connect to HiveServer2
 
@@ -90,7 +90,10 @@ class Connection(object):
 
         #     # PLAIN corresponds to hive.server2.authentication=NONE in hive-site.xml
         #     self._transport = thrift_sasl.TSaslClientTransport(sasl_factory, b'PLAIN', socket)
-        elif auth in ['LDAP', 'PLAIN', 'GSSAPI']:
+        elif auth.upper() in ['LDAP', 'PLAIN', 'GSSAPI', 'NONE']:
+            if auth.upper() == 'NONE':
+                #Follow the older version's convention
+                auth = 'PLAIN'
             if password is None:
                 if auth == 'LDAP':
                     password = ''
@@ -109,7 +112,7 @@ class Connection(object):
             self._transport = thrift_sasl.TSaslClientTransport(sasl_factory, auth, socket)
         else:
             raise NotImplementedError(
-                "Only NONE & NOSASL authentication are supported, got {}".format(auth))
+                "Only NONE(PLAIN),NOSASL,LDAP,GSSAPI authentication are supported, got {}".format(auth))
 
         protocol = thrift.protocol.TBinaryProtocol.TBinaryProtocol(self._transport)
         self._client = TCLIService.Client(protocol)
@@ -129,8 +132,8 @@ class Connection(object):
             self._sessionHandle = response.sessionHandle
             assert response.serverProtocolVersion == protocol_version, \
                 "Unable to handle protocol version {}".format(response.serverProtocolVersion)
-            with contextlib.closing(self.cursor()) as cursor:
-                cursor.execute('USE `{}`'.format(database))
+           # with contextlib.closing(self.cursor()) as cursor:		
+           #     cursor.execute('USE `{}`'.format(database))
         except:
             self._transport.close()
             raise
@@ -261,7 +264,7 @@ class Cursor(common.DBAPICursor):
         status = self.poll().operationState
         while status in (ttypes.TOperationState.INITIALIZED_STATE, ttypes.TOperationState.RUNNING_STATE):
             status = self.poll().operationState
-            _logger.info("The state of the query now is %d", status)
+            _logger.debug(status)
 
     def cancel(self):
         req = ttypes.TCancelOperationReq(

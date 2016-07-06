@@ -61,6 +61,12 @@ class HiveDecimal(HiveStringTypeBase):
     def process_result_value(self, value, dialect):
         return decimal.Decimal(value)
 
+class Map(HiveStringTypeBase):
+    impl = types.String
+
+    def __str__(self):
+        return 'MAP'
+
 
 class HiveIdentifierPreparer(compiler.IdentifierPreparer):
     # Just quote everything to make things simpler / easier to upgrade
@@ -90,7 +96,7 @@ _type_map = {
     'timestamp': HiveTimestamp,
     'binary': types.String,
     'array': types.String,
-    'map': types.String,
+    'map': Map,
     'struct': types.String,
     'uniontype': types.String,
     'decimal': HiveDecimal,
