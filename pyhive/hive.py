@@ -76,7 +76,6 @@ class Connection(object):
         username = username or getpass.getuser()
         configuration = configuration or {}
         self.database = database
-        self.last_cursor = None
         if auth == 'NOSASL':
             # NOSASL corresponds to hive.server2.authentication=NOSASL in hive-site.xml
             self._transport = thrift.transport.TTransport.TBufferedTransport(socket)
@@ -149,14 +148,8 @@ class Connection(object):
         cursor = Cursor(self, *args, **kwargs)
         cursor.execute('USE `{}`'.format(self.database))
         """Return a new :py:class:`Cursor` object using the connection."""
-        self.last_cursor = cursor
         return cursor
     
-    def cancel(self):
-        if self.last_cursor is not None:
-            self.last_cursor.cancel()
-            self.last_cursor = None
-
     @property
     def client(self):
         return self._client
@@ -264,9 +257,9 @@ class Cursor(common.DBAPICursor):
         self._operationHandle = response.operationHandle
         _logger.debug(req)
         status = self.poll().operationState
-        while status in (ttypes.TOperationState.INITIALIZED_STATE, ttypes.TOperationState.RUNNING_STATE):
-           status = self.poll().operationState
-           _logger.info("The state of the query now is %d", status)
+        #while status in (ttypes.TOperationState.INITIALIZED_STATE, ttypes.TOperationState.RUNNING_STATE):
+        #   status = self.poll().operationState
+        #   _logger.info("The state of the query now is %d", status)
 
     def cancel(self):
         req = ttypes.TCancelOperationReq(
