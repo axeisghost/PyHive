@@ -31,7 +31,6 @@ paramstyle = 'pyformat'  # Python extended format codes, e.g. ...WHERE name=%(na
 
 _logger = logging.getLogger(__name__)
 
-
 class HiveParamEscaper(common.ParamEscaper):
     def escape_string(self, item):
         # backslashes and single quotes need to be escaped
@@ -149,7 +148,19 @@ class Connection(object):
         cursor.execute('USE `{}`'.format(self.database))
         """Return a new :py:class:`Cursor` object using the connection."""
         return cursor
-    
+
+    def cancel(self, opParams):
+        newOpId = ttypes.THandleIdentifier(guid=opParams['guid'], secret=opParams['secret'])
+        newOp = ttypes.TOperationHandle(operationId=newOpId,
+                                        operationType=opParams['operationType'],
+                                        hasResultSet=opParams['hasResultSet'],
+                                        modifiedRowCount=opParams['modifiedRowCount'])
+        req = ttypes.TCancelOperationReq(
+            operationHandle=newOp,
+        )
+        response = self.client.CancelOperation(req)
+        #_check_status(response)
+
     @property
     def client(self):
         return self._client
@@ -234,11 +245,24 @@ class Cursor(common.DBAPICursor):
         """Close the operation handle"""
         self._reset_state()
 
+    def execute_with_op_return(self, operation, parameters=None, async=False):
+        self.execute(operation, parameters=parameters, async=True)
+        params = {'guid': self._operationHandle.operationId.guid,
+                  'secret': self._operationHandle.operationId.secret,
+                  'operationType': self._operationHandle.operationType,
+                  'hasResultSet': self._operationHandle.hasResultSet,
+                  'modifiedRowCount': self._operationHandle.modifiedRowCount}
+        print("*******************************************************")
+        print(params)
+        print("*******************************************************")
+        return params
+
     def execute(self, operation, parameters=None, async=False):
         """Prepare and execute a database operation (query or command).
 
         Return values are not defined.
         """
+
         # Prepare statement
         if parameters is None:
             sql = operation
@@ -251,15 +275,11 @@ class Cursor(common.DBAPICursor):
         _logger.info('%s', sql)
 
         req = ttypes.TExecuteStatementReq(self._connection.sessionHandle,
-                                          sql.encode('utf-8'), runAsync=True)
+                                          sql.encode('utf-8'), runAsync=async)
         response = self._connection.client.ExecuteStatement(req)
         _check_status(response)
         self._operationHandle = response.operationHandle
         _logger.debug(req)
-        status = self.poll().operationState
-        #while status in (ttypes.TOperationState.INITIALIZED_STATE, ttypes.TOperationState.RUNNING_STATE):
-        #   status = self.poll().operationState
-        #   _logger.info("The state of the query now is %d", status)
 
     def cancel(self):
         req = ttypes.TCancelOperationReq(
