@@ -23,6 +23,7 @@ import thrift.protocol.TBinaryProtocol
 import thrift.transport.TSocket
 import thrift.transport.TTransport
 import thrift_sasl
+import base64
 
 # PEP 249 module globals
 apilevel = '2.0'
@@ -30,7 +31,6 @@ threadsafety = 2  # Threads may share the module and connections.
 paramstyle = 'pyformat'  # Python extended format codes, e.g. ...WHERE name=%(name)s
 
 _logger = logging.getLogger(__name__)
-cursor_table = {}
 
 class HiveParamEscaper(common.ParamEscaper):
     def escape_string(self, item):
@@ -151,11 +151,12 @@ class Connection(object):
         return cursor
 
     def cancel(self, opParams):
-        newOpId = ttypes.THandleIdentifier(guid=opParams['guid'], secret=opParams['secret'])
+        newOpId = ttypes.THandleIdentifier(guid=base64.b64decode(opParams['guid']), secret=base64.b64decode(opParams['secret']))
         newOp = ttypes.TOperationHandle(operationId=newOpId,
-                                        operationType=opParams['operationType'],
-                                        hasResultSet=opParams['hasResultSet'],
-                                        modifiedRowCount=opParams['modifiedRowCount'])
+                                        operationType=opParams['operation_type'],
+                                        hasResultSet=opParams['has_result_set'],
+                                        modifiedRowCount=opParams['modified_row_count'])
+        print(newOpId)
         req = ttypes.TCancelOperationReq(
             operationHandle=newOp,
         )
@@ -248,11 +249,12 @@ class Cursor(common.DBAPICursor):
 
     def execute_with_op_return(self, operation, parameters=None, async=False):
         self.execute(operation, parameters=parameters, async=True)
-        params = {'guid': self._operationHandle.operationId.guid,
-                  'secret': self._operationHandle.operationId.secret,
-                  'operationType': self._operationHandle.operationType,
-                  'hasResultSet': self._operationHandle.hasResultSet,
-                  'modifiedRowCount': self._operationHandle.modifiedRowCount}
+        print(type(self._operationHandle.operationId.guid))
+        params = {'guid': unicode(base64.b64encode(self._operationHandle.operationId.guid)),
+                  'secret': unicode(base64.b64encode(self._operationHandle.operationId.secret)),
+                  'operation_type': self._operationHandle.operationType,
+                  'has_result_set': self._operationHandle.hasResultSet,
+                  'modified_row_count': self._operationHandle.modifiedRowCount}
         print("*******************************************************")
         print(params)
         print("*******************************************************")
@@ -281,9 +283,6 @@ class Cursor(common.DBAPICursor):
         _check_status(response)
         self._operationHandle = response.operationHandle
         _logger.debug(req)
-        #while status in (ttypes.TOperationState.INITIALIZED_STATE, ttypes.TOperationState.RUNNING_STATE):
-        #   status = self.poll().operationState
-        #   _logger.info("The state of the query now is %d", status)
 
     def cancel(self):
         req = ttypes.TCancelOperationReq(
