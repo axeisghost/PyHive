@@ -558,15 +558,7 @@ class Client(Iface):
     result = CancelOperation_result()
     result.read(iprot)
     iprot.readMessageEnd()
-    print('xxxxxxxxx')
-    print(result.success)
     if result.success is not None:
-      print('11111111111'
-            '11111111111'
-            '11111111111'
-            '11111111111'
-            '11111111111')
-      print(result.success)
       return result.success
     raise TApplicationException(TApplicationException.MISSING_RESULT, "CancelOperation failed: unknown result");
 

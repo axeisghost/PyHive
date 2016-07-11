@@ -60,6 +60,7 @@ def connect(*args, **kwargs):
 
     :returns: a :py:class:`Connection` object.
     """
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ConnectHERE@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     return Connection(*args, **kwargs)
 
 
@@ -79,17 +80,8 @@ class Connection(object):
         if auth == 'NOSASL':
             # NOSASL corresponds to hive.server2.authentication=NOSASL in hive-site.xml
             self._transport = thrift.transport.TTransport.TBufferedTransport(socket)
-        # elif auth == 'NONE':
-        #     def sasl_factory():
-        #         sasl_client = sasl.Client()
-        #         sasl_client.setAttr(b'username', username.encode('latin-1'))
-        #         # Password doesn't matter in NONE mode, just needs to be nonempty.
-        #         sasl_client.setAttr(b'password', b'x')
-        #         sasl_client.init()
-        #         return sasl_client
 
         #     # PLAIN corresponds to hive.server2.authentication=NONE in hive-site.xml
-        #     self._transport = thrift_sasl.TSaslClientTransport(sasl_factory, b'PLAIN', socket)
         elif auth in ['LDAP', 'PLAIN', 'GSSAPI']:
             if password is None:
                 if auth == 'LDAP':
@@ -156,12 +148,16 @@ class Connection(object):
                                         operationType=opParams['operation_type'],
                                         hasResultSet=opParams['has_result_set'],
                                         modifiedRowCount=opParams['modified_row_count'])
-        print(newOpId)
+        print("-------------------------------------------------------------")
+        print("Client for this request: ")
+        print(self.client)
+        print(self._client)
+        print("-------------------------------------------------------------")
         req = ttypes.TCancelOperationReq(
             operationHandle=newOp,
         )
-        response = self.client.CancelOperation(req)
-        #_check_status(response)
+        response = self._client.CancelOperation(req)
+        _check_status(response)
 
     @property
     def client(self):
@@ -249,7 +245,6 @@ class Cursor(common.DBAPICursor):
 
     def execute_with_op_return(self, operation, parameters=None, async=False):
         self.execute(operation, parameters=parameters, async=True)
-        print(type(self._operationHandle.operationId.guid))
         params = {'guid': unicode(base64.b64encode(self._operationHandle.operationId.guid)),
                   'secret': unicode(base64.b64encode(self._operationHandle.operationId.secret)),
                   'operation_type': self._operationHandle.operationType,
