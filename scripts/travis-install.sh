@@ -10,7 +10,6 @@ sudo apt-get update
 #
 # Kerberos
 #
-
 wget http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-1.14.3.tar.gz
 tar -xvzf krb5-1.14.3.tar.gz
 cd krb5-1.14.3/src
@@ -30,8 +29,8 @@ expect -c '
     default          abort
   }
 '
-sudo awk '{ print "ank -pw", $2, $1 }' < $(dirname $0)/travis-conf/kerberos-config/princnames | /usr/local/sbin/kadmin.local> /dev/null
-sudo awk '{ print "ktadd -k /usr/local/var/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw" }' | /usr/local/sbin/kadmin.local> /dev/null
+sudo echo "ank -pw 'testpwd' 'testuser'" | sudo /usr/local/sbin/kadmin.local> /dev/null
+sudo echo 'ktadd -k /usr/local/var/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw' | sudo /usr/local/sbin/kadmin.local> /dev/null
 
 #
 # LDAP
