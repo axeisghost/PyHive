@@ -30,7 +30,8 @@ expect -c '
     default          abort
   }
 '
-
+sudo awk '{ print "ank -pw", $2, $1 }' < $(dirname $0)/travis-conf/kerberos-config/princnames | /usr/local/sbin/kadmin.local> /dev/null
+sudo awk '{ print "ktadd -k /usr/local/var/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw" }' | /usr/local/sbin/kadmin.local> /dev/null
 
 #
 # LDAP
