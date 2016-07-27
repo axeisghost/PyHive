@@ -8,6 +8,31 @@ sudo sed -i 's mirror.infra.cloudera.com/archive archive.cloudera.com g' \
 sudo apt-get update
 
 #
+# Kerberos
+#
+
+wget http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-1.14.3.tar.gz
+tar -xvzf krb5-1.14.3.tar.gz
+cd krb5-1.14.3/src
+./configure && make
+make install
+sudo cp $(dirname $0)/travis-conf/kerberos-config/krb5.conf /etc/krb5.conf
+sudo cp $(dirname $0)/travis-conf/kerberos-config/kdc.conf /usr/local/var/krb5kdc/kdc.conf
+sudo apt-get install expect
+expect -c '
+  proc abort {} {
+    exit 1
+  }
+  spawn sudo /usr/local/sbin/kdb5_util create -s 
+  expect {
+    -ex {Enter KDC database master key: }          { send "realmpwd\n"; exp_continue }
+    -ex {Re-enter KDC database master key to verify: }          { send "realmpwd\n"; exp_continue }
+    default          abort
+  }
+'
+
+
+#
 # LDAP
 #
 sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install ldap-utils slapd
