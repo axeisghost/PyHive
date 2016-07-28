@@ -10,12 +10,12 @@ sudo apt-get update
 #
 # Kerberos
 #
-wget http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-1.14.3.tar.gz
-tar -xvzf krb5-1.14.3.tar.gz
-cd krb5-1.14.3/src
+sudo wget http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-1.14.3.tar.gz -P /tmp/
+sudo tar -xvzf /tmp/krb5-1.14.3.tar.gz
+cd /tmp/krb5-1.14.3/src
 sudo ./configure && sudo make
 sudo make install
-cd ../..
+cd $(dirname $0)
 sudo cp $(dirname $0)/kerberos-config/krb5.conf /etc/krb5.conf
 sudo cp $(dirname $0)/kerberos-config/kdc.conf /usr/local/var/krb5kdc/kdc.conf
 sudo apt-get install expect
