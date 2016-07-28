@@ -27,7 +27,6 @@ expect -c '
   expect {
     -ex {Enter KDC database master key: }          { send "realmpwd\n"; exp_continue }
     -ex {Re-enter KDC database master key to verify: }          { send "realmpwd\n"; exp_continue }
-    default          abort
   }
 '
 sudo echo "ank -pw testpwd testuser" | sudo /usr/local/sbin/kadmin.local> /dev/null
