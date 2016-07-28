@@ -152,7 +152,7 @@ class TestHiveAuth(unittest.TestCase):
         subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site-ldap.xml',
                          '/etc/hive/conf/hive-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
-        subprocess.call(['sleep','10'])
+        subprocess.call(['sleep','3'])
         connection = hive.connect(host=_HOST, username='existing', auth='LDAP',
                                   configuration={'mapred.job.tracker': 'local'},
                                   password='testpw')
@@ -165,7 +165,7 @@ class TestHiveAuth(unittest.TestCase):
         subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site.xml',
                          '/etc/hive/conf/hive-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
-        subprocess.call(['sleep','10'])
+        subprocess.call(['sleep','3'])
 
     def test_kerberos_connection(self):
         import subprocess
@@ -174,7 +174,7 @@ class TestHiveAuth(unittest.TestCase):
         subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site-kerberos.xml',
                          '/etc/hive/conf/hive-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
-        subprocess.call(['sleep','10'])
+        subprocess.call(['sleep','3'])
         connection = hive.connect(host=_HOST, username='testuser', auth='KERBEROS',
                                   configuration={'mapred.job.tracker': 'local'},
                                   password='testpwd')
@@ -187,4 +187,4 @@ class TestHiveAuth(unittest.TestCase):
         subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site.xml',
                          '/etc/hive/conf/hive-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
-        subprocess.call(['sleep','10'])
+        subprocess.call(['sleep','3'])
