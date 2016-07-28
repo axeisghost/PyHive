@@ -13,7 +13,7 @@ sudo apt-get update
 wget http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-1.14.3.tar.gz
 tar -xvzf krb5-1.14.3.tar.gz
 cd krb5-1.14.3/src
-sudo ./configure && make
+sudo ./configure && sudo make
 sudo make install
 cd ../..
 sudo cp $(dirname $0)/kerberos-config/krb5.conf /etc/krb5.conf
