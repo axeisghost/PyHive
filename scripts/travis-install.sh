@@ -16,8 +16,8 @@ cd /tmp/krb5-1.14.3/src
 sudo ./configure && sudo make
 sudo make install
 cd $TRAVIS_BUILD_DIR/scripts
-sudo cp $(dirname $0)/kerberos-config/krb5.conf /etc/krb5.conf
-sudo cp $(dirname $0)/kerberos-config/kdc.conf /usr/local/var/krb5kdc/kdc.conf
+sudo cp $TRAVIS_BUILD_DIR/scripts/kerberos-config/krb5.conf /etc/krb5.conf
+sudo cp $TRAVIS_BUILD_DIR/scripts/kerberos-config/kdc.conf /usr/local/var/krb5kdc/kdc.conf
 sudo apt-get install expect
 expect -c '
   proc abort {} {
