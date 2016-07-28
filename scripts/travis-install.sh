@@ -36,7 +36,7 @@ expect -c '
   proc abort {} {
     exit 1
   }
-  spawn sudo usr/local/bin/kinit testuser 
+  spawn sudo /usr/local/bin/kinit testuser 
   expect {
     -ex {Password for testuser@TESTREALM.COM: }          { send "testpwd\n"; exp_continue }
     default          abort
