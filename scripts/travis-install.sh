@@ -32,6 +32,7 @@ expect -c '
 sudo echo "ank -pw testpwd testuser" | sudo /usr/local/sbin/kadmin.local> /dev/null
 sudo echo 'ktadd -k /usr/local/var/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw' | sudo /usr/local/sbin/kadmin.local> /dev/null
 sudo echo 'ktadd -k /etc/testhive.keytab testuser' | sudo /usr/local/sbin/kadmin.local> /dev/null
+sudo /usr/local/sbin/krb5kdc
 expect -c '
   proc abort {} {
     exit 1
@@ -39,7 +40,6 @@ expect -c '
   spawn sudo /usr/local/bin/kinit testuser 
   expect {
     -ex {Password for testuser@TESTREALM.COM: }          { send "testpwd\n"; exp_continue }
-    default          abort
   }
 '
 #
