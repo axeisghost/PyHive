@@ -7,7 +7,7 @@
   </property>
   <property>
     <name>hive.server2.authentication.kerberos.principal</name>
-    <value>testuser@TESTREALM.COM</value>
+    <value>testuser/_HOST@TESTREALM.COM</value>
   </property>
   <property>
     <name>hive.server2.authentication.kerberos.keytab</name>
