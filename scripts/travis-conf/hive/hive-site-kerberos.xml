@@ -2,6 +2,10 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
   <property>
+    <name>hive.server2.thrift.sasl.qop</name>
+    <value>auth-conf</value>
+  </property>
+  <property>
     <name>hive.server2.authentication</name>
     <value>KERBEROS</value>
   </property>
