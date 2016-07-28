@@ -13,10 +13,11 @@ sudo apt-get update
 wget http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-1.14.3.tar.gz
 tar -xvzf krb5-1.14.3.tar.gz
 cd krb5-1.14.3/src
-./configure && make
-make install
-sudo cp $(dirname $0)/travis-conf/kerberos-config/krb5.conf /etc/krb5.conf
-sudo cp $(dirname $0)/travis-conf/kerberos-config/kdc.conf /usr/local/var/krb5kdc/kdc.conf
+sudo ./configure && make
+sudo make install
+cd ../..
+sudo cp $(dirname $0)/kerberos-config/krb5.conf /etc/krb5.conf
+sudo cp $(dirname $0)/kerberos-config/kdc.conf /usr/local/var/krb5kdc/kdc.conf
 sudo apt-get install expect
 expect -c '
   proc abort {} {
@@ -29,9 +30,19 @@ expect -c '
     default          abort
   }
 '
-sudo echo "ank -pw 'testpwd' 'testuser'" | sudo /usr/local/sbin/kadmin.local> /dev/null
+sudo echo "ank -pw testpwd testuser" | sudo /usr/local/sbin/kadmin.local> /dev/null
 sudo echo 'ktadd -k /usr/local/var/krb5kdc/kadm5.keytab kadmin/admin kadmin/changepw' | sudo /usr/local/sbin/kadmin.local> /dev/null
-
+sudo echo 'ktadd -k /etc/testhive.keytab testuser' | sudo /usr/local/sbin/kadmin.local> /dev/null
+expect -c '
+  proc abort {} {
+    exit 1
+  }
+  spawn sudo usr/local/bin/kinit testuser 
+  expect {
+    -ex {Password for testuser@TESTREALM.COM: }          { send "testpwd\n"; exp_continue }
+    default          abort
+  }
+'
 #
 # LDAP
 #

@@ -166,3 +166,25 @@ class TestHiveAuth(unittest.TestCase):
                          '/etc/hive/conf/hive-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
         subprocess.call(['sleep','10'])
+
+    def test_kerberos_connection(self):
+        import subprocess
+        import os
+        rootdir = os.environ['TRAVIS_BUILD_DIR']
+        subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site-kerberos.xml',
+                         '/etc/hive/conf/hive-site.xml'])
+        subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
+        subprocess.call(['sleep','10'])
+        connection = hive.connect(host=_HOST, username='testuser', auth='KERBEROS',
+                                  configuration={'mapred.job.tracker': 'local'},
+                                  password='testpwd')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM one_row')
+        self.assertEqual(cursor.rownumber, 0)
+        self.assertEqual(cursor.fetchone(), (1,))
+        self.assertEqual(cursor.rownumber, 1)
+        self.assertIsNone(cursor.fetchone())
+        subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site.xml',
+                         '/etc/hive/conf/hive-site.xml'])
+        subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
+        subprocess.call(['sleep','10'])
