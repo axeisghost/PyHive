@@ -174,6 +174,8 @@ class TestHive(unittest.TestCase, DBAPITestCase):
         rootdir = os.environ['TRAVIS_BUILD_DIR']
         subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site-kerberos.xml',
                          '/etc/hive/conf/hive-site.xml'])
+        subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/core-site-kerberos.xml',
+                         '/etc/hadoop/conf/core-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
         subprocess.call(['sleep','3'])
         connection = hive.connect(host=_HOST, username='testuser', auth='KERBEROS',
@@ -187,6 +189,8 @@ class TestHive(unittest.TestCase, DBAPITestCase):
         self.assertIsNone(cursor.fetchone())
         subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/hive-site.xml',
                          '/etc/hive/conf/hive-site.xml'])
+        subprocess.call(['sudo', 'cp', rootdir + '/scripts/travis-conf/hive/core-site.xml',
+                         '/etc/hadoop/conf/core-site.xml'])
         subprocess.call(['sudo', 'service', 'hive-server2', 'restart'])
         subprocess.call(['sleep','3'])
 
