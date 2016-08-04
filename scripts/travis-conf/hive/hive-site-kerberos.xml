@@ -2,6 +2,23 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
   <property>
+    <name>hive.metastore.sasl.enabled</name>
+    <value>true</value>
+    <description>If true, the metastore thrift interface will be secured with SASL. Clients must authenticate with Kerberos.</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.kerberos.keytab.file</name>
+    <value>/etc/testhive.keytab</value>
+    <description>The path to the Kerberos Keytab file containing the metastore thrift server's service principal.</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.kerberos.principal</name>
+    <value>testuser/_HOST@TESTREALM.COM</value>
+    <description>The service principal for the metastore thrift server. The special string _HOST will be replaced automatically with the correct host name.</description>
+  </property>
+  <property>
     <name>hive.server2.thrift.sasl.qop</name>
     <value>auth-conf</value>
   </property>
